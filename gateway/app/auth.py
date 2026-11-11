@@ -4,7 +4,8 @@ from dataclasses import dataclass
 
 from fastapi import Header, HTTPException
 
-USERS = {"steward-a": "steward", "steward-b": "steward", "qa-1": "qa", "viewer-1": "viewer"}
+USERS = {"steward-a": "steward", "steward-b": "steward", "qa-1": "qa", "viewer-1": "viewer",
+         "initiator-1": "initiator", "initiator-2": "initiator", "sme-1": "sme"}
 APPROVER_ROLES = {"steward", "qa"}
 
 

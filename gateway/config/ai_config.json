@@ -1,6 +1,6 @@
 {
-  "config_version": "1.3.0",
-  "change_ref": "CC-SYN-0004 (synthetic): retrieval - sop_top_k 5 -> 8 and light word-form stemming (live run: SOP-DEV-001 5.1 ranked 14th and was not retrieved)",
+  "config_version": "1.4.0",
+  "change_ref": "CC-SYN-0005 (synthetic): prompts for the guided deviation drafting loop (proposals, gap questions, draft) incl. the writing standard (AI-13)",
   "notes": "Version-controlled AI configuration item (AI-06). Edit only through change control: change this file, bump config_version, then re-approve with `python -m app.ai_config approve`. The gateway refuses AI calls while this file does not match gateway/config/ai_config.lock.json.",
   "default_model": "qwen2.5:14b-instruct",
   "models": [
@@ -46,5 +46,23 @@
   "verifier": {
     "verified": 0.6,
     "low": 0.35
+  },
+  "tasks": {
+    "proposals": {
+      "max_sources": 10,
+      "max_context_chars": 12000,
+      "instructions": "Propose, from the sources only: (1) the event type; (2) the applicable requirements, giving requirement_id exactly as in the 'req:' sources (for example 211.192); (3) the applicable SOPs, giving sop_number as in the 'sop:' sources; and (4) a preliminary classification (minor, major or critical) using the criteria in SOP-DEV-002. For each give short factual reasoning and its citations. Every claim must carry at least one citation: source_id and version copied exactly from the source header, the locator copied exactly from the value after 'locator:' (for example 5.1, lines:2 or value, without brackets or the section title), and a quote copied word for word from that passage. Never invent a requirement, SOP, section, record or quote. If the sources do not support a proposal, leave that list empty or give no value. These are proposals only: a person confirms or changes every one. Writing standard (Good Documentation Practice): be factual and objective; write events in the past tense; do not speculate (no 'probably', 'might have', 'seems'); do not use blame or opinion language (no 'operator error', 'careless', 'unfortunately'); do not state anything that is not in the sources."
+    },
+    "gap_questions": {
+      "max_sources": 10,
+      "max_context_chars": 12000,
+      "max_questions": 6,
+      "instructions": "List up to 6 pieces of information that this deviation record needs, according to the requirements and SOP sections in the sources, but that the initiator has not yet said. Do not repeat the questions already asked. For each question give: text (a neutral, factual question), why (one factual sentence naming the requirement or SOP section it satisfies) and citations for it. Every claim must carry at least one citation: source_id and version copied exactly from the source header, the locator copied exactly from the value after 'locator:' (for example 5.1, lines:2 or value, without brackets or the section title), and a quote copied word for word from that passage. Never invent a requirement, SOP, section, record or quote. If nothing is missing, set no_gaps to true and return no questions. Writing standard (Good Documentation Practice): be factual and objective; write events in the past tense; do not speculate (no 'probably', 'might have', 'seems'); do not use blame or opinion language (no 'operator error', 'careless', 'unfortunately'); do not state anything that is not in the sources."
+    },
+    "draft": {
+      "max_sources": 14,
+      "max_context_chars": 16000,
+      "instructions": "Write ONLY these three sections of the deviation draft: event_summary (a short factual summary of the event, using only the 'answer:' sources, which are what the people on this record entered), regulatory_and_procedural_context (which requirements and SOP steps apply, citing the regulation and SOP sources) and precedent_review (how similar past closed records, the 'record:' sources, were handled; return an empty list if none is relevant). Each statement is a short sentence with its citations. Every claim must carry at least one citation: source_id and version copied exactly from the source header, the locator copied exactly from the value after 'locator:' (for example 5.1, lines:2 or value, without brackets or the section title), and a quote copied word for word from that passage. Never invent a requirement, SOP, section, record or quote. If the sources do not support a section, return an empty list for it and say so in gaps. Writing standard (Good Documentation Practice): be factual and objective; write events in the past tense; do not speculate (no 'probably', 'might have', 'seems'); do not use blame or opinion language (no 'operator error', 'careless', 'unfortunately'); do not state anything that is not in the sources."
+    }
   }
 }

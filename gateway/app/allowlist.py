@@ -52,9 +52,9 @@ INTERNAL = {
                 [("/internal/", {"POST"}), ("/library", {"GET"}), ("/search", {"GET"})]),
     "knowledge": ("KNOWLEDGE_URL", "http://127.0.0.1:8002",
                   [("/internal/", {"POST"}), ("/search", {"GET"}), ("/traceability", {"GET"}),
-                   ("/documents", {"GET"}), ("/records", {"GET"})]),
+                   ("/documents", {"GET"}), ("/records", {"GET"}), ("/templates", {"GET"})]),
     "mock-eqms": ("MOCK_EQMS_URL", "http://127.0.0.1:8003", [("/read/", {"GET"})]),  # read-only connection
-    "workflow": ("WORKFLOW_URL", "http://127.0.0.1:8004", [("/internal/", {"POST"})]),
+    "workflow": ("WORKFLOW_URL", "http://127.0.0.1:8004", [("/internal/", {"POST", "GET"})]),
     "ollama": ("OLLAMA_URL", "http://127.0.0.1:11434", [("/api/chat", {"POST"}), ("/api/tags", {"GET"})]),
 }
 

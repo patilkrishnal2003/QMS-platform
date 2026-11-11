@@ -1,11 +1,11 @@
 {
-  "config_version": "1.3.0",
-  "sha256": "a1ea745b1af7d800649a20dd0bd41bf0bb15c4e3b69d28d324d447b196e275a6",
-  "change_ref": "CC-SYN-0004 (synthetic): retrieval - sop_top_k 5 -> 8 and light word-form stemming (live run: SOP-DEV-001 5.1 ranked 14th and was not retrieved)",
+  "config_version": "1.4.0",
+  "sha256": "afea3eec3a8b2c883608b32a8c6f31dde9063f7f3e89e791f37c757bbc657118",
+  "change_ref": "CC-SYN-0005 (synthetic): prompts for the guided deviation drafting loop (proposals, gap questions, draft) incl. the writing standard (AI-13)",
   "approved_by": [
     "steward-a",
     "qa-1"
   ],
-  "approved_at": "2026-11-11T09:40:28.960076+00:00",
+  "approved_at": "2026-11-11T09:57:01.488392+00:00",
   "note": "SIMULATED change-control approval for the demo."
 }

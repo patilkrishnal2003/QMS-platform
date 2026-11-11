@@ -33,7 +33,7 @@ RESPONSE_SCHEMA = {
     },
     "required": ["statements", "no_support_found", "gaps"],
 }
-TYPE_ORDER = {"req": 0, "library": 1, "sop": 2, "record": 3}
+TYPE_ORDER = {"answer": -1, "req": 0, "library": 1, "sop": 2, "record": 3}
 # Defaults only for direct use/tests. In the running system both come from the approved AI config (AI-06).
 DEFAULT_PASSAGE_TEMPLATE = "[locator: {locator}] {text}"
 DEFAULT_INSTRUCTIONS = (

@@ -94,6 +94,12 @@ def fetch_source(source_id: str, version: str | None, get=None) -> dict | None:
         if not rec or str(rec.get("version")) != ver or rec.get("record_kind") != "record":
             return None
         return record_source(rec)
+    if kind == "answer":
+        rid, _, key = ident.partition(":")
+        if not rid or not key or not ver:
+            return None
+        src = _ok(get("workflow", f"/internal/deviations/{rid}/sources/{key}"), f"answer {ident}")
+        return src if src and str(src.get("version")) == ver else None
     if kind == "req":
         if not re.fullmatch(r"\d{3}\.\d+", ident):
             return None

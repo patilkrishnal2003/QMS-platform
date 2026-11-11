@@ -221,3 +221,9 @@ def assist_config(_: User = Depends(get_user)):
         installed = {}
     out["models"] = [{"name": m["name"], "pinned_digest": m["digest"], **installed.get(m["name"], {})} for m in cfg.models]
     return out
+
+
+# ------------------------------------------------------------------ Phase 4: the guided deviation drafting loop
+from . import deviations  # noqa: E402
+
+app.include_router(deviations.register(get_registry))

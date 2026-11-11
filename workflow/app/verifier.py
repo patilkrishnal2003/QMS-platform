@@ -113,6 +113,10 @@ def strip_self_references(text: str, citations: list[dict]) -> str:
         if ident and not ident.isdigit():
             pat = r"[\s_\-]+".join(re.escape(p) for p in re.split(r"[\s_\-]+", ident) if p)
             out = re.sub(r"(?<![A-Za-z0-9])" + pat + r"(?![A-Za-z0-9])", " ", out, flags=re.I)
+        loc = str(c.get("locator") or "").strip().rpartition("#")[2]       # 'SOP-DEV-001#5.4' -> '5.4'
+        if loc and not loc.startswith("lines:") and re.fullmatch(r"\d+(?:\.\d+)*", loc):
+            # 'section 5.1' / '§5.1' names the very section being cited: not a quantity the passage must contain
+            out = re.sub(r"(?:\bsections?|\bsec\.|§)\s*" + re.escape(loc) + r"(?![\d.]*\d)", " ", out, flags=re.I)
         ver = str(c.get("version") or "").strip().lstrip("vV")
         if ver:
             out = re.sub(r"\b(?:version|ver\.?|v)\s*\.?\s*" + re.escape(ver) + r"(?![\d.]*\d)", " ", out, flags=re.I)

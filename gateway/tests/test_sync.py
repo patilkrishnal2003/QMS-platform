@@ -135,3 +135,17 @@ def test_ollama_is_internal_only_never_on_the_external_allowlist():
         with pytest.raises(UrlNotAllowed):
             allowlist.safe_get(url)           # ...before any request
     assert allowlist.INTERNAL["ollama"][1] == "http://127.0.0.1:11434"
+
+
+# ---- Phase 4: the gateway may read from workflow and knowledge templates; nothing else widened
+def test_phase4_internal_routes():
+    check_internal_url("http://127.0.0.1:8004/internal/deviations/WF-0001", "workflow", "GET")
+    check_internal_url("http://127.0.0.1:8004/internal/deviations", "workflow", "POST")
+    check_internal_url("http://127.0.0.1:8002/templates", "knowledge", "GET")
+    for url, svc, m in [("http://127.0.0.1:8004/health", "workflow", "GET"),               # only /internal/
+                        ("http://127.0.0.1:8004/internal/../health", "workflow", "GET"),
+                        ("http://127.0.0.1:8004/internal/x", "workflow", "DELETE"),
+                        ("http://127.0.0.1:8002/templates", "knowledge", "POST"),
+                        ("http://127.0.0.1:8003/write/records", "mock-eqms", "POST")]:      # the eQMS write side is still unreachable
+        with pytest.raises(UrlNotAllowed):
+            check_internal_url(url, svc, m)

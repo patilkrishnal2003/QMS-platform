@@ -43,6 +43,7 @@ class AiConfig:
     generation: dict
     verifier: dict
     prompt: dict
+    tasks: dict
     approved_by: tuple
 
     @property
@@ -143,10 +144,14 @@ def load_approved() -> AiConfig:
     tpl = raw["prompt"].get("passage_template", "")
     if "{locator}" not in tpl or "{text}" not in tpl or not raw["prompt"].get("instructions"):
         raise ConfigNotApproved("AI config prompt needs passage_template with {locator} and {text}, and instructions")
+    tasks = raw.get("tasks") or {}
+    for t in ("proposals", "gap_questions", "draft"):
+        if not str((tasks.get(t) or {}).get("instructions", "")).strip():
+            raise ConfigNotApproved(f"AI config tasks.{t}.instructions is required (drafting loop prompts are a config item)")
     return AiConfig(version=raw["config_version"], sha256=sha, change_ref=lock.get("change_ref", ""),
                     default_model=default, models=models, system_prompt=raw["system_prompt"],
                     retrieval=raw["retrieval"], generation=raw["generation"], verifier=raw["verifier"],
-                    prompt=raw["prompt"], approved_by=approvers)
+                    prompt=raw["prompt"], tasks=tasks, approved_by=approvers)
 
 
 def approve(approvers: list[str], change_ref: str) -> dict:

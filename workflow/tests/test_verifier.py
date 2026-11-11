@@ -192,3 +192,27 @@ def test_strip_self_references_unit():
     assert V.strip_self_references("SOP-DEV-001 v3.0 says 24 hours", cites) == "says 24 hours"
     assert V.strip_self_references("library 7 item, version 1, requires 7 days", cites).endswith("requires 7 days")
     assert "24" in V.strip_self_references("within 24 hours (v3.0)", cites)
+
+
+# ---- a statement naming the very section it cites is not penalised for that number (found by the Phase 4 walkthrough)
+def test_statement_naming_the_cited_section_is_not_downgraded_for_the_section_number():
+    r = v(stmt(text="SOP-DEV-001 section 5.1 requires the originator to record the event within 24 hours of detection."))
+    assert r["verdict"] == "verified" and not any(x.startswith("number_not_in_passage") for x in r["reasons"])
+    assert v(stmt(text="Per section 5.1 the originator must record the event within 24 hours of detection."))["verdict"] == "verified"
+    assert v(stmt(text="\u00a75.1: the originator records the event within 24 hours of detection."))["verdict"] == "verified"
+
+
+def test_citing_a_different_section_number_or_a_wrong_quantity_is_still_caught():
+    wrong_section = v(stmt(text="Section 6 requires the originator to record the event within 24 hours of detection."))
+    assert wrong_section["verdict"] == "mismatch" and any(x.startswith("number_not_in_passage:6") for x in wrong_section["reasons"])
+    wrong_qty = v(stmt(text="Section 5.1 requires the originator to record the event within 48 hours of detection."))
+    assert wrong_qty["verdict"] == "mismatch" and any(x.startswith("number_not_in_passage:48") for x in wrong_qty["reasons"])
+
+
+def test_requirement_link_locators_with_a_hash_are_handled():
+    c = SRC["req:211.192"]["passages"][0]
+    r = V.verify_statement({"text": "21 CFR 211.192 is implemented by SOP-DEV-001 section 5.4.",
+                            "citations": [{"source_id": "req:211.192", "version": None, "locator": "SOP-DEV-001#5.4",
+                                           "quote": "is implemented by SOP-DEV-001 section 5.4"}]}, SRC)
+    assert r["verdict"] == "verified"
+    assert V.strip_self_references("see section 5.4 and 5.45", [{"source_id": "x:y", "locator": "SOP-DEV-001#5.4"}]).endswith("and 5.45")

@@ -156,7 +156,7 @@ def test_supported_answer_is_verified_with_links_and_fully_logged(reg):
     assert d["input"]["query"].startswith("Originator reported") and d["prompt_messages"][1]["content"]                       # input
     assert d["retrieved_source_ids"] == out["retrieved_source_ids"]                                                          # source refs
     assert d["model"] == {"name": "qwen2.5:14b-instruct", "digest": "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6", "size": 9, "digest_pinned": True}                              # model version
-    assert d["config"]["config_version"] == "1.3.0" and len(d["config"]["config_sha256"]) == 64 and d["config"]["approved_by"]  # config version
+    assert d["config"]["config_version"] == "1.4.0" and len(d["config"]["config_sha256"]) == 64 and d["config"]["approved_by"]  # config version
     assert d["settings"]["generation"]["temperature"] == 0 and d["settings"]["system_prompt"] and d["settings"]["retrieval"]
     assert d["library_version"] == "lib-1-abc" and d["knowledge_snapshot"].startswith("kn-1-")                                # library version
     assert d["raw_output"] == w.reply and d["output"]["statements"][0]["verdict"] == "verified"                              # output
@@ -209,7 +209,7 @@ def test_no_retrieval_means_no_model_call_and_an_explicit_no_support_answer(reg)
     assert out["status"] == "no_support_found" and out["no_support_found"] and out["statements"] == []
     assert w.chat_calls == [] and out["model"] is None                            # never asked the model to improvise
     d = call_entry(reg)
-    assert d["model_called"] is False and d["retrieved_source_ids"] == [] and d["config"]["config_version"] == "1.3.0"
+    assert d["model_called"] is False and d["retrieved_source_ids"] == [] and d["config"]["config_version"] == "1.4.0"
 
 
 def test_unparseable_model_output_is_not_presented_as_supported_but_is_logged(reg):
@@ -269,7 +269,7 @@ def cfgdir(tmp_path, monkeypatch):
 
 def test_repo_config_is_approved_and_pins_the_model():
     c = ai_config.load_approved()
-    assert c.model == "qwen2.5:14b-instruct" and c.version == "1.3.0" and len(set(c.approved_by)) == 2
+    assert c.model == "qwen2.5:14b-instruct" and c.version == "1.4.0" and len(set(c.approved_by)) == 2
     assert c.approved_names() == ["qwen2.5:14b-instruct", "qwen2.5:7b-instruct"] and c.pinned_digest(c.model)
     assert c.generation["temperature"] == 0 and c.generation["seed"] == 42 and c.verifier == {"verified": 0.6, "low": 0.35}
     assert "keyword" in c.retrieval["method"]
@@ -450,7 +450,7 @@ def test_assist_routes_roles_and_flow(client):
     assert ok.status_code == 200 and ok.json()["user"] == "qa-1"
     assert c.post("/assist/nope/disposition", json={"action": "accepted"}, headers={"X-User": "qa-1"}).status_code == 404
     cfg = c.get("/assist/config", headers={"X-User": "viewer-1"}).json()
-    assert cfg["model"] == "qwen2.5:14b-instruct" and cfg["config_version"] == "1.3.0"
+    assert cfg["model"] == "qwen2.5:14b-instruct" and cfg["config_version"] == "1.4.0"
     assert reg.verify_audit()
 
 
@@ -464,7 +464,7 @@ def test_assist_route_maps_failures(client):
 def test_prompt_format_is_a_change_controlled_config_item(cfgdir, reg):
     """The locator format change (CC-SYN-0002) only takes effect through approval; tampering with it blocks calls."""
     c = ai_config.load_approved()
-    assert c.version == "1.3.0" and c.prompt["passage_template"] == "[locator: {locator}] {text}"
+    assert c.version == "1.4.0" and c.prompt["passage_template"] == "[locator: {locator}] {text}"
     p = cfgdir / "ai_config.json"
     cfg = json.loads(p.read_text(encoding="utf-8"))
     cfg["prompt"]["passage_template"] = "({locator}) {text}"      # revert the format without change control

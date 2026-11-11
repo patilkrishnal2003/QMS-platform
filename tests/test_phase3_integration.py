@@ -93,7 +93,7 @@ def stack(tmp_path, monkeypatch):
     urls = {}
     for name, env_key in (("library", "LIBRARY_DB"), ("knowledge", "KNOWLEDGE_DB"), ("mock-eqms", "EQMS_DB")):
         procs[name], urls[name] = _spawn(name, {env_key: str(tmp_path / f"{name}.db")})
-    procs["workflow"], urls["workflow"] = _spawn("workflow", {})
+    procs["workflow"], urls["workflow"] = _spawn("workflow", {"WORKFLOW_DB": str(tmp_path / "workflow.db")})
     for env, name in (("LIBRARY_URL", "library"), ("KNOWLEDGE_URL", "knowledge"), ("MOCK_EQMS_URL", "mock-eqms"),
                       ("WORKFLOW_URL", "workflow")):
         monkeypatch.setenv(env, urls[name])
@@ -169,7 +169,7 @@ def test_assistant_end_to_end_with_real_services_and_a_scripted_model(stack, tmp
         d = json.loads(e["detail"])
         assert e["actor"] == "steward-a" and e["ts"] and d["input"]["query"].startswith("A tablet press")
         assert d["retrieved_source_ids"] == ids and d["model"]["digest"] == "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6"
-        assert d["config"]["config_version"] == "1.3.0" and d["library_version"] == o["library_version"]
+        assert d["config"]["config_version"] == "1.4.0" and d["library_version"] == o["library_version"]
         assert d["raw_output"] and d["output"]["summary"]["verified"] == 2
 
         # what the user did with it

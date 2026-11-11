@@ -187,5 +187,56 @@ Question: "A deviation was reported 3 days after it was discovered. What does ou
 - **Not done (user instruction: stop touching Phase 3):** the 14B/7B comparison was NOT re-run with the corrected retrieval, and `scripts\test.ps1` (which includes the live model call) was not run after this change. Suites were run with the live test excluded: gateway 107, library 23, knowledge 35, mock-eqms 13, workflow 35, root 25 - all passing (web unchanged, not re-run).
 - **Backlog, not blocking Phase 4:** (1) embeddings / semantic retrieval; (2) an entailment check on "verified" (the verifier cannot see that a real, verbatim passage answers a different question - confirmed with the 7B run); (3) re-run the model comparison on corrected retrieval and on a larger fixed question set before choosing a default model.
 
+## Phase 4 - Workflow API: the 9-step guided drafting loop: DONE (2026-11-11)
+
+### Architecture
+- **Workflow service owns state and logic** (passive: no network, still enforced by `tests/test_closed_loop.py`). **Gateway is the front door, the AI orchestrator and the audit writer** (`gateway/app/deviations.py`, router `/deviations`): retrieve -> workflow builds prompt -> Ollama -> workflow parses -> gateway fetches cited sources -> workflow verifier -> result stored.
+- **State machine** (`workflow/app/engine.py`): `status` in_progress | ready_for_approval | cancelled; `step` proposals -> questions -> checklist -> draft -> ready. Steps move only by explicit `advance`; a skipped or unmet step is refused with 409 and a `required` list. Record is frozen after ready. A stale draft (answers changed after generation) must be regenerated.
+- **Store:** SQLite, JSON record state plus append-only events table (triggers block UPDATE/DELETE). Gateway keeps its own hash-chained audit (`deviation.*` actions, including `deviation.refused` with status/code/required).
+- **Question bank** (`workflow/data/elements.json`): 27 hand-authored SYNTHETIC elements, each with why, what it satisfies (requirement/SOP/field/URS) and adaptation conditions.
+- **Citable human input:** answers are sources of type `answer:<record>:<key>` (version = answer revision), so AI text can cite what people entered; the verifier rejects citations to superseded revisions.
+- **Config:** v1.4.0 (CC-SYN-0005, approved by steward-a + qa-1) adds `tasks` (proposals, gap_questions, draft) whose instructions embed citation rules and the GDP writing standard. Models and pinned digests unchanged. `approve` now requires a version bump when content changes and a change reference.
+- Simulated users added: initiator-1, initiator-2, sme-1.
+
+### What each URS item got
+- **GW-01** intake: free-text description + minimal fields.
+- **GW-02** AI proposals (event type, regulations, SOPs, classification), each with verified citations and deterministic validity checks (known requirement, effective SOP, allowed enum); each explicitly confirmed or changed by the initiator.
+- **GW-03/04** questions from three sources (bank, adaptation, AI gap questions), adaptive; "unknown"/"TBD" answers; evidence placeholders; assignment to simulated users.
+- **GW-05** completeness checklist (answered / missing / tbd / tbd_accepted / not_applicable).
+- **GW-06** draft in template structure; every statement linked to a source; AI text marked pending until a person accepts, edits or rejects it.
+- **GW-09 / AI-05** explicit human decisions: root cause, product impact, reportability and classification are recorded human decisions with who/when. The AI cannot set them.
+- **AI-13** writing standard (`workflow/app/style.py` flags speculation, blame, subjective terms) plus the instruction text.
+- **DI-05** AI text never presented as human-written: author recorded (model, digest, config, call_id); an edited AI statement becomes human-authored with `ai_original` kept.
+- **Approved decisions:** flagged AI content must be explicitly resolved before ready; TBD is allowed in the draft but blocks "mark ready" unless answered or explicitly accepted as "TBD at investigation" by a person (logged who/when, like flagged-content resolution). Latency and polling deferred to Phase 5.
+
+### Real defects found and fixed
+1. **Gateway audit helper crash:** `_audit() got multiple values for argument 'user'` (the log dict itself contains `user`). Fixed with positional-only parameters.
+2. **Refusal audit entries incomplete:** refusals from the precheck and create paths were logged without `status`/`code`. Fixed; the walkthrough asserts them.
+3. **Verifier false flag:** a statement naming the section it cites ("SOP-DEV-001 section 5.1 ...") was marked mismatch because "5.1" is not a number inside the passage. The verifier now strips references to the cited section locator, and a statement that only names its source is flagged `statement_only_names_its_source`. New verifier tests; evaluation numbers unchanged (30 cases P=R=1.000; stress 12 cases P=0.250 R=0.333).
+- Minor, found by tests: `Store.list` shadowed the builtin (renamed `list_records`). The rest of the test churn was test-helper mistakes, not product bugs.
+
+### Tests (full `scripts	est.ps1`, exit 0, ALL TESTS PASSED)
+| Stage | Result |
+|---|---|
+| gateway | 111 passed |
+| library | 23 passed |
+| knowledge | 35 passed |
+| mock-eqms | 13 passed |
+| workflow | 97 passed (50 engine, plus tasks/API and verifier additions) |
+| verifier evaluation | P=1.000 R=1.000 |
+| root (integration + walkthrough, includes live 14B call) | 30 passed, 679 s |
+| web | 1 passed |
+- The Phase 4 walkthrough (`tests/test_phase4_walkthrough.py`) drives one realistic synthetic deviation through all 9 steps with a scripted model behind a fake Ollama, asserting human decisions, refusals of skipped steps and the audit trail, plus 3 failure-mode tests (~62 s).
+- Full-suite runtime is 5-11 min because of the live CPU model call and the real-service end-to-end tests.
+
+### Known gaps and interpretations (read before calling these bugs)
+- **Live drafting loop not run against the real model.** Phase 4 AI steps were tested with a scripted model; real 14B/7B output quality on proposals, gap questions and drafts is unknown. Only the Phase 3 live test used the real model.
+- **AI steps are synchronous.** On CPU each live call takes about 1-4 minutes, so HTTP requests block that long. Latency/polling is deferred to Phase 5.
+- **"Verified" is not proof of correctness** (Phase 3 finding, still true): the verifier is lexical; a human accept/reject remains required.
+- **Not atomic:** the workflow commit and the gateway audit write are separate; a crash between them can leave a state change without its audit entry.
+- **Interpretations:** question bank content, event types and decision value lists are my synthetic assumptions; permissions (owner-only for advance/proposal/statement decisions; owner or steward/QA for the three human decisions and TBD acceptance; answers by owner, assignee or oversight) are simulated roles, not real access control.
+- **Not built (per scope):** inline comments/redlining (Phase 6), web UI (Phase 5), regulatory-change alerts (Phase 6).
+- **Still unmet URS items:** IK-04, IK-07, IK-08 and others noted earlier. Phase 3 backlog unchanged (embeddings, entailment check, larger model comparison).
+
 ## Next
-- Phase 4 (not started).
+- Phase 5 (web UI, plus async/polling for the AI steps). Not started.

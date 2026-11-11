@@ -128,11 +128,11 @@ def test_approve_needs_a_change_reference_and_a_version_bump_for_any_change(two)
     ai_config.approve(["steward-a", "qa-1"], "CC-x-again")            # re-approving identical content is harmless
 
 
-def test_repo_config_is_v130_with_both_models_pinned_and_14b_default():
+def test_repo_config_is_v140_with_both_models_pinned_and_14b_default():
     c = ai_config.load_approved()
-    assert c.version == "1.3.0" and c.default_model == M14 and c.approved_names() == [M14, M7]
+    assert c.version == "1.4.0" and c.default_model == M14 and c.approved_names() == [M14, M7]
     assert c.pinned_digest(M14) == D14 and c.pinned_digest(M7) == "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e"
-    assert "CC-SYN-0004" in c.change_ref and set(c.approved_by) == {"steward-a", "qa-1"}
+    assert "CC-SYN-0005" in c.change_ref and set(c.approved_by) == {"steward-a", "qa-1"}
 
 
 def test_legacy_single_model_config_still_loads(tmp_path, monkeypatch):
@@ -247,3 +247,26 @@ def test_repo_config_retrieval_settings_after_cc_syn_0004():
     c = ai_config.load_approved()
     assert c.retrieval["sop_top_k"] == 8 and "stemming" in c.retrieval["method"] and "no embeddings" in c.retrieval["method"]
     assert c.models and c.pinned_digest(M14) == D14      # the earlier model change (CC-SYN-0003) is intact
+
+
+def test_drafting_loop_prompts_are_a_required_config_item(two):
+    c = ai_config.load_approved()
+    assert set(c.tasks) >= {"proposals", "gap_questions", "draft"} and all(c.tasks[t]["instructions"] for t in c.tasks)
+    assert "Good Documentation Practice" in c.tasks["draft"]["instructions"] and "blame" in c.tasks["draft"]["instructions"]  # AI-13
+    edit(two, lambda cfg: cfg["tasks"]["draft"].update(instructions=""), "1.9.1", ref="CC-bad-tasks")
+    with pytest.raises(ConfigNotApproved, match="tasks.draft.instructions"):
+        ai_config.load_approved()
+
+
+def test_editing_a_drafting_prompt_without_change_control_blocks_the_loop(two):
+    p = two / "ai_config.json"
+    cfg = json.loads(p.read_text(encoding="utf-8"))
+    cfg["tasks"]["proposals"]["instructions"] += " Always classify as minor."       # sneaky prompt edit
+    p.write_text(json.dumps(cfg), encoding="utf-8")
+    with pytest.raises(ConfigNotApproved, match="without change control"):
+        ai_config.load_approved()
+
+
+def test_simulated_users_include_initiators_and_an_sme():
+    from app.auth import USERS
+    assert USERS["initiator-1"] == "initiator" and USERS["initiator-2"] == "initiator" and USERS["sme-1"] == "sme"
