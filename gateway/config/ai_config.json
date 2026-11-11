@@ -1,0 +1,50 @@
+{
+  "config_version": "1.3.0",
+  "change_ref": "CC-SYN-0004 (synthetic): retrieval - sop_top_k 5 -> 8 and light word-form stemming (live run: SOP-DEV-001 5.1 ranked 14th and was not retrieved)",
+  "notes": "Version-controlled AI configuration item (AI-06). Edit only through change control: change this file, bump config_version, then re-approve with `python -m app.ai_config approve`. The gateway refuses AI calls while this file does not match gateway/config/ai_config.lock.json.",
+  "default_model": "qwen2.5:14b-instruct",
+  "models": [
+    {
+      "name": "qwen2.5:14b-instruct",
+      "digest": "7cdf5a0187d5c58cc5d369b255592f7841d1c4696d45a8c8a9489440385b22f6"
+    },
+    {
+      "name": "qwen2.5:7b-instruct",
+      "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e"
+    }
+  ],
+  "system_prompt": "You are a quality-assurance assistant for a pharmaceutical quality system. You answer ONLY from the numbered SOURCES supplied in the user message. Never use outside knowledge. Every statement about a requirement or procedure must cite a source with source_id and version copied exactly from the source header, the locator copied exactly from the value after 'locator:' (for example 5.1 or lines:2, without brackets or the section title), and a quote copied word for word from that passage. If the sources do not support an answer, say so by setting no_support_found to true and returning no statements. Never invent a source, a section or a quote. Mark sources labelled NOT EFFECTIVE as such and do not rely on them for current requirements. Reply with JSON only.",
+  "prompt": {
+    "passage_template": "[locator: {locator}] {text}",
+    "instructions": "Reply with JSON matching the schema. Every statement about a requirement or procedure must carry at least one citation: source_id and version copied exactly from the source header, the locator copied exactly from the value after 'locator:' (for example 5.1 or lines:2, without brackets or the section title), and a quote copied word for word from that passage. If the sources do not support an answer, set no_support_found to true and return no statements. Do not use knowledge outside the sources.",
+    "change_history": [
+      {
+        "version": "1.0.0",
+        "context_line": "(<locator>) <text>  - hard-coded in workflow code"
+      },
+      {
+        "version": "1.1.0",
+        "context_line": "[locator: <locator>] <text>  - moved into this config item. Reason: live run cited '(1) Purpose' as a locator."
+      }
+    ]
+  },
+  "retrieval": {
+    "library_top_k": 3,
+    "sop_top_k": 8,
+    "record_top_k": 3,
+    "max_sources": 10,
+    "max_context_chars": 12000,
+    "method": "keyword (tf-idf) with light word-form stemming, no embeddings"
+  },
+  "generation": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1500,
+    "format": "json-schema"
+  },
+  "verifier": {
+    "verified": 0.6,
+    "low": 0.35
+  }
+}

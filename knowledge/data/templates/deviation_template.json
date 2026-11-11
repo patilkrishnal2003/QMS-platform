@@ -1,0 +1,153 @@
+{
+  "synthetic": true,
+  "notice": "SYNTHETIC / FICTIONAL blank form for Examplon Pharma (fictional). Not a real company form.",
+  "record_kind": "template",
+  "template_id": "TPL-DEV-001",
+  "title": "Deviation Record (blank form)",
+  "version": "1.0",
+  "status": "effective",
+  "effective_date": "2025-01-01",
+  "urs_mapping_note": "Aligned to the real URS on 2026-11-11. GW-01 minimal initiator fields are listed in gw01_minimal_fields (record type, free-text description, site, product or material, lot, equipment, date discovered). Fields tagged GW-02 are proposed by the system and confirmed by the initiator. Fields tagged GW-03 are required by the SOP/form rather than the initiator's minimal entry, so questions will be generated for them. IK-06: this template defines structure and required fields; it is never an executed record.",
+  "enums": {
+    "event_type": [
+      "equipment_failure",
+      "process_deviation",
+      "material_nonconformance",
+      "documentation_error",
+      "environmental_excursion",
+      "laboratory_oos",
+      "cleaning_failure",
+      "labeling_error",
+      "training_gap",
+      "supplier_issue"
+    ],
+    "site": [
+      "SITE-RB",
+      "SITE-HG",
+      "SITE-LK"
+    ],
+    "severity": [
+      "minor",
+      "major",
+      "critical"
+    ]
+  },
+  "fields": [
+    {
+      "name": "event_type",
+      "label": "Event type",
+      "type": "enum",
+      "required": true,
+      "urs": [
+        "GW-01",
+        "GW-02"
+      ]
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "type": "enum",
+      "required": true,
+      "urs": [
+        "GW-01"
+      ]
+    },
+    {
+      "name": "product",
+      "label": "Product or material",
+      "type": "string",
+      "required": true,
+      "urs": [
+        "GW-01"
+      ]
+    },
+    {
+      "name": "lot_number",
+      "label": "Lot / batch number",
+      "type": "string",
+      "required": true,
+      "urs": [
+        "GW-01"
+      ]
+    },
+    {
+      "name": "equipment_id",
+      "label": "Equipment ID",
+      "type": "string",
+      "required": true,
+      "urs": [
+        "GW-01"
+      ]
+    },
+    {
+      "name": "event_date",
+      "label": "Date of event",
+      "type": "date",
+      "required": true,
+      "urs": [
+        "GW-03"
+      ]
+    },
+    {
+      "name": "detected_date",
+      "label": "Date discovered",
+      "type": "date",
+      "required": true,
+      "urs": [
+        "GW-01"
+      ]
+    },
+    {
+      "name": "description",
+      "label": "Description of event",
+      "type": "text",
+      "required": true,
+      "urs": [
+        "GW-01"
+      ]
+    },
+    {
+      "name": "immediate_action",
+      "label": "Immediate action / containment",
+      "type": "text",
+      "required": true,
+      "urs": [
+        "GW-03"
+      ]
+    },
+    {
+      "name": "severity",
+      "label": "Severity (minor / major / critical)",
+      "type": "enum",
+      "required": true,
+      "urs": [
+        "GW-02"
+      ]
+    },
+    {
+      "name": "reported_by",
+      "label": "Reported by",
+      "type": "string",
+      "required": true,
+      "urs": [
+        "GW-03"
+      ]
+    }
+  ],
+  "optional_fields": [
+    "area_or_room",
+    "batch_size",
+    "related_sops"
+  ],
+  "source_system": "document management system (simulated flat file)",
+  "urs_status": "aligned",
+  "gw01_minimal_fields": [
+    "event_type",
+    "site",
+    "product",
+    "lot_number",
+    "equipment_id",
+    "detected_date",
+    "description"
+  ]
+}

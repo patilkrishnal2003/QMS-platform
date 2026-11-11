@@ -1,0 +1,11 @@
+{
+  "config_version": "1.3.0",
+  "sha256": "a1ea745b1af7d800649a20dd0bd41bf0bb15c4e3b69d28d324d447b196e275a6",
+  "change_ref": "CC-SYN-0004 (synthetic): retrieval - sop_top_k 5 -> 8 and light word-form stemming (live run: SOP-DEV-001 5.1 ranked 14th and was not retrieved)",
+  "approved_by": [
+    "steward-a",
+    "qa-1"
+  ],
+  "approved_at": "2026-11-11T09:40:28.960076+00:00",
+  "note": "SIMULATED change-control approval for the demo."
+}

@@ -1,0 +1,116 @@
+{
+  "synthetic": true,
+  "notice": "HAND-AUTHORED mapping from requirement IDs to sections of the SYNTHETIC SOPs. Not AI-generated. Requirement titles are public 21 CFR section headings.",
+  "mappings": [
+    {
+      "requirement_id": "211.100",
+      "citation": "21 CFR 211.100 - Written procedures; deviations",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "3"
+        },
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "5.1"
+        },
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "5.2"
+        },
+        {
+          "sop_number": "SOP-DEV-002",
+          "section": "3"
+        }
+      ]
+    },
+    {
+      "requirement_id": "211.192",
+      "citation": "21 CFR 211.192 - Production record review",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "5.4"
+        },
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "5.5"
+        },
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "5.6"
+        },
+        {
+          "sop_number": "SOP-INV-001",
+          "section": "4"
+        },
+        {
+          "sop_number": "SOP-INV-001",
+          "section": "7"
+        }
+      ]
+    },
+    {
+      "requirement_id": "211.22",
+      "citation": "21 CFR 211.22 - Responsibilities of quality control unit",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-CAPA-001",
+          "section": "3"
+        },
+        {
+          "sop_number": "SOP-CAPA-001",
+          "section": "6"
+        },
+        {
+          "sop_number": "SOP-CHG-001",
+          "section": "4"
+        }
+      ]
+    },
+    {
+      "requirement_id": "211.180",
+      "citation": "21 CFR 211.180 - General requirements (records)",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "7"
+        }
+      ]
+    },
+    {
+      "requirement_id": "211.160",
+      "citation": "21 CFR 211.160 - General requirements (laboratory controls)",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-INV-001",
+          "section": "5"
+        }
+      ]
+    },
+    {
+      "requirement_id": "211.68",
+      "citation": "21 CFR 211.68 - Automatic, mechanical, and electronic equipment",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-CHG-001",
+          "section": "7"
+        },
+        {
+          "sop_number": "SOP-CHG-002",
+          "section": "5"
+        }
+      ]
+    },
+    {
+      "requirement_id": "211.188",
+      "citation": "21 CFR 211.188 - Batch production and control records",
+      "implemented_by": [
+        {
+          "sop_number": "SOP-DEV-001",
+          "section": "5.5"
+        }
+      ]
+    }
+  ]
+}
